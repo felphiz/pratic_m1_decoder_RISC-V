@@ -897,6 +897,7 @@ def recodificar_com_novo_deslocamento(registro, novo_deslocamento):
 # primeiro refaz todos os enderecos antes de qualquer conta de deslocamento
 # alvo antigo e endereco antigo mais imediato antigo da instrucao original
 # alvo dentro do programa segue a instrucao que tem o mesmo endereco original
+# alteracao de Paulo Torres (M2-05): alvo aponta para o inicio do bloco reordenado
 # na reordenacao o alvo segue a primeira instrucao do bloco reordenado,
 # marcada com o endereco do inicio original do bloco
 # alvo fora do programa segue o mesmo endereco absoluto de antes
@@ -917,6 +918,7 @@ def recalcular_desvios_e_saltos(lista_original, lista_corrigida):
                 mapa_novo[origem] = indice
         indice = indice + 1
     indice = 0
+    # alteracao de Paulo Torres (M2-05): laco novo que registra o inicio de cada bloco
     while indice < total:
         registro = lista_corrigida[indice]
         if "lider_original" in registro:
@@ -1140,6 +1142,13 @@ def procurar_posicao_por_endereco(lista_original, endereco):
     return 0 - 1
 
 
+# alteracao de Paulo Torres (M2-05): daqui ate corrigir_com_reordenacao a
+# reordenacao foi refeita para trabalhar dentro de cada bloco basico
+# sairam as funcoes antigas indice_inicio_bloco_de, proximo_valido_depois,
+# buscar_candidata_ao_slot e mover_para_slot
+
+
+# alteracao de Paulo Torres (M2-05): funcao nova
 # devolve quantos nops faltam para o registro se ele entrar numa posicao dada
 # igual a nops_necessarios_antes, mas a posicao vem de fora
 # serve para o slot, que entra uma posicao depois do desvio
@@ -1158,6 +1167,7 @@ def nops_necessarios_em(posicao, registro, ultimo_produtor):
     return maior
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # diz se o registro le um registrador dado
 # zero e campo ausente nunca contam, igual a listar_leituras
 def le_registrador(registro, registrador):
@@ -1170,6 +1180,7 @@ def le_registrador(registro, registrador):
     return "nao"
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # copia a lista para outra lista com os mesmos elementos
 # serve para ensaiar um bloco sem mexer na lista de verdade
 def copiar_lista(lista):
@@ -1182,6 +1193,7 @@ def copiar_lista(lista):
     return copia
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # copia a tabela de ultimo produtor para outra tabela igual
 # serve para ensaiar um bloco sem mexer na tabela de verdade
 def copiar_tabela(tabela):
@@ -1191,6 +1203,7 @@ def copiar_tabela(tabela):
     return copia
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # acha a ultima posicao do bloco basico que comeca na posicao dada
 # o bloco acaba no desvio ou salto, antes de invalida, antes de outro inicio
 # ou na ultima instrucao do programa
@@ -1211,6 +1224,7 @@ def achar_fim_bloco(lista_resultados, inicios, inicio):
     return posicao
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # calcula o peso de cada instrucao do bloco para desempatar a escolha
 # peso e o tamanho da maior cadeia de dependentes que vem depois dela
 # dependente que le o que ela escreve soma 3, porque precisa ficar a distancia 3
@@ -1243,6 +1257,7 @@ def calcular_pesos_cadeia(registros, pos_slot):
     return pesos
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # diz se a instrucao do bloco ja pode sair sem quebrar nenhuma dependencia
 # ela so sai quando toda anterior que depende da ordem com ela ja saiu
 # isso preserva leitura apos escrita, escrita apos leitura, escrita apos escrita
@@ -1257,6 +1272,7 @@ def esta_pronta(registros, feito, indice):
     return "sim"
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # coloca os nops pedidos e depois a copia da instrucao no fim da lista
 # atualiza o ultimo produtor quando a instrucao escreve registrador
 # devolve a copia para quem chamou poder marcar movido ou inicio de bloco
@@ -1275,6 +1291,7 @@ def emitir_instrucao(corrigida, ultimo_produtor, registro, pedidos):
     return copia
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova, reordena dentro do bloco (R5)
 # monta um bloco basico reordenado no fim da lista corrigida
 # a cada passo olha as instrucoes prontas e escolhe a que pede menos nops agora
 # empate vai para a de maior cadeia de dependentes, depois para a ordem original
@@ -1363,12 +1380,14 @@ def emitir_bloco(corrigida, ultimo_produtor, registros, pos_slot):
     return inseridos
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # monta a chave que identifica um par de desvio e candidata ao slot
 # usa os enderecos originais, que nunca mudam na reordenacao
 def chave_desvio_slot(desvio, candidata):
     return str(desvio["endereco_original"]) + ":" + str(candidata["endereco_original"])
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova, no lugar de buscar_candidata_ao_slot
 # diz se a instrucao do bloco pode ir para o slot do desvio que encerra o bloco
 # nop nao vale a pena, ele nao economiza nada
 # ela passa para depois de todas as seguintes do bloco, entao nao pode ter
@@ -1407,6 +1426,7 @@ def candidata_valida_para_slot(lista_resultados, registros, pos_candidata, proib
     return "sim"
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # ensaia o bloco com uma escolha de slot e devolve o custo em nops
 # monta o bloco em copias da lista e da tabela, sem mexer nas de verdade
 # soma os nops do bloco com os nops que as duas instrucoes seguintes pediriam
@@ -1431,6 +1451,7 @@ def custo_do_bloco(lista_resultados, corrigida, ultimo_produtor, registros, fim,
     return custo
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova, escolhe o slot pelo menor custo
 # escolhe quem vai para o slot do desvio que encerra o bloco
 # ensaia o bloco sem candidata e com cada candidata valida
 # fica com a escolha de menor custo em nops
@@ -1461,6 +1482,7 @@ def escolher_slot(lista_resultados, corrigida, ultimo_produtor, registros, fim, 
     return melhor
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova
 # monta o programa inteiro reordenado, um bloco basico de cada vez
 # a reordenacao nunca sai do bloco, so a candidata ao slot atravessa o desvio
 # invalida nao entra em bloco nenhum e fica no mesmo lugar
@@ -1495,6 +1517,7 @@ def montar_reordenacao(lista_resultados, proibidos):
     return corrigida
 
 
+# alteracao de Paulo Torres (M2-05): funcao nova, corrige o erro do caminho tomado
 # reverifica o caminho tomado de cada desvio no programa ja montado
 # no caminho tomado executam em seguida o desvio, o slot e o alvo
 # se o slot util escreve o que a primeira ou a segunda instrucao do alvo le,
@@ -1527,6 +1550,7 @@ def verificar_caminho_tomado(corrigida):
     return ""
 
 
+# alteracao de Paulo Torres (M2-05): funcao reescrita
 # corrige com reordenacao dentro de cada bloco basico e slot com instrucao util
 # monta o programa, reverifica o caminho tomado de cada desvio e, se algum
 # slot util deixou conflito no alvo, proibe aquele par e monta tudo de novo
@@ -1626,6 +1650,7 @@ def escrever_arquivo_corrigido(caminho_saida, lista_corrigida, estilo):
 
 # monta uma linha da listagem legivel com endereco, codigo e desmontada
 # marca nop criado aqui com nop inserido e movida com movido para slot
+# alteracao de Paulo Torres (M2-05): marca nova movido no bloco
 # instrucao que so mudou de lugar dentro do bloco sai com movido no bloco
 # invalida mostra so a marca canonica para nao inventar assembly
 def montar_linha_listagem(registro):
@@ -1692,6 +1717,7 @@ def formatar_percentual_uma_casa(acrescentadas, original):
 # original e o tamanho da entrada, finais sao os tamanhos corrigidos
 # acrescentadas e final menos original, percentual com uma casa
 # compara as duas tecnicas lado a lado em tres linhas
+# alteracao de Paulo Torres (M2-05): ciclos em cada linha do custo (R8)
 # cada linha mostra tambem os ciclos: n instrucoes com pipeline vazio
 # no inicio levam n + 4 ciclos nos cinco estagios
 def mostrar_custo(total_original, total_nops, total_reord):
